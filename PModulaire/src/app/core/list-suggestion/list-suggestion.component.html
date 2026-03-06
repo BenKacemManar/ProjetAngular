@@ -1,0 +1,63 @@
+<div class="page-container">
+    <div class="list-header">
+        <h2>Liste des suggestions</h2>
+
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="Rechercher une suggestion par titre ou catégorie"
+                [(ngModel)]="searchText">
+        </div>
+    </div>
+
+    <div class="suggestions-list">
+        <div class="suggestion-card" *ngFor="let suggestion of filteredSuggestions">
+            <div class="card-content">
+                <h3 class="card-title">{{ suggestion.title }}</h3>
+
+                <div class="card-meta">
+                    <span class="category">{{ suggestion.category }}</span>
+                    <span class="date">{{ suggestion.date | date:'dd MMM yyyy' }}</span>
+                </div>
+
+                <p class="card-description">{{ suggestion.description }}</p>
+
+                <div class="status-badge" [ngClass]="{
+               'status-accepted': suggestion.status === 'acceptee',
+               'status-refused': suggestion.status === 'refusee',
+               'status-waiting': suggestion.status === 'en_attente'
+             }">
+                    {{ suggestion.status === 'acceptee' ? 'ACCEPTÉE' : (suggestion.status === 'refusee' ? 'REFUSÉE' :
+                    'EN ATTENTE') }}
+                </div>
+            </div>
+
+            <div class="card-actions" *ngIf="suggestion.status !== 'refusee'">
+                <button class="action-btn btn-like" (click)="incrementLikes(suggestion)">
+                    👍 Like {{ suggestion.nbLikes }}
+                </button>
+                <button class="action-btn btn-favorite" (click)="addToFavorites(suggestion)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                        </path>
+                    </svg>
+                    Ajouter aux favoris
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="favorites-section" *ngIf="favorites.length > 0">
+        <h2 class="favorites-title">Mes Suggestions Favorites</h2>
+        <div class="suggestions-list">
+            <div class="suggestion-card favorite-card" *ngFor="let fav of favorites">
+                <div class="card-content">
+                    <h3 class="card-title">{{ fav.title }}</h3>
+                    <div class="card-meta">
+                        <span class="category">{{ fav.category }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

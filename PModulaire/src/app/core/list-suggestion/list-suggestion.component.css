@@ -149,6 +149,21 @@
     border: none;
 }
 
+.add-suggestion-btn {
+    display: inline-block;
+    margin-bottom: 1rem;
+    padding: 0.65rem 1rem;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #ffffff;
+    background-color: #2563eb;
+    font-weight: 600;
+}
+
+.add-suggestion-btn:hover {
+    background-color: #1d4ed8;
+}
+
 .btn-like:hover {
     background-color: #2563eb;
     transform: scale(1.02);

@@ -2,6 +2,14 @@ import { Injectable } from '@angular/core';
 
 import { Suggestion } from '../../models/suggestion';
 
+export interface CreateSuggestionPayload {
+  title: string;
+  description: string;
+  category: string;
+  date: Date;
+  status: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -56,5 +64,24 @@ export class SuggestionsService {
   getSuggestionById(id: number): Suggestion | undefined {
     return this.suggestions.find((suggestion) => suggestion.id === id);
   }
-}
 
+  addSuggestion(payload: CreateSuggestionPayload): Suggestion {
+    const maxId = this.suggestions.reduce(
+      (currentMax, suggestion) => Math.max(currentMax, suggestion.id),
+      0
+    );
+
+    const createdSuggestion: Suggestion = {
+      id: maxId + 1,
+      title: payload.title,
+      description: payload.description,
+      category: payload.category,
+      date: payload.date,
+      status: payload.status,
+      nbLikes: 0
+    };
+
+    this.suggestions.unshift(createdSuggestion);
+    return createdSuggestion;
+  }
+}

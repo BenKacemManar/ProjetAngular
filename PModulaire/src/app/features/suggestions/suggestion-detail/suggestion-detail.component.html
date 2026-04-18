@@ -1,0 +1,19 @@
+<section class="detail-container" *ngIf="suggestion; else notFound">
+  <h2>{{ suggestion.title }}</h2>
+  <p class="meta">
+    <span>{{ suggestion.category }}</span>
+    <span>{{ suggestion.date | date:'dd MMM yyyy' }}</span>
+  </p>
+  <p>{{ suggestion.description }}</p>
+  <p><strong>Statut:</strong> {{ suggestion.status }}</p>
+  <p><strong>Likes:</strong> {{ suggestion.nbLikes }}</p>
+  <a routerLink="/suggestions" class="back-link">back to list</a>
+</section>
+
+<ng-template #notFound>
+  <section class="detail-container">
+    <h2>Suggestion introuvable</h2>
+    <a routerLink="/suggestions" class="back-link">back to list</a>
+  </section>
+</ng-template>
+

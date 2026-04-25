@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
 
 import { Suggestion } from '../../models/suggestion';
 
@@ -29,38 +28,53 @@ export class SuggestionsService {
 
   constructor(private readonly http: HttpClient) {}
 
-  async getSuggestions(): Promise<Suggestion[]> {
-    const data = await firstValueFrom(
-      this.http.get<SuggestionApiModel[]>(this.apiUrl)
-    );
-    return data.map((item) => this.mapFromApi(item));
+  getSuggestions(
+    onSuccess: (suggestions: Suggestion[]) => void,
+    onError?: (error: unknown) => void
+  ): void {
+    this.http.get<SuggestionApiModel[]>(this.apiUrl).subscribe({
+      next: (data) => onSuccess(data.map((item) => this.mapFromApi(item))),
+      error: (error) => onError?.(error)
+    });
   }
 
-  async getSuggestionById(id: number): Promise<Suggestion | undefined> {
-    try {
-      const data = await firstValueFrom(
-        this.http.get<{
-          success: boolean;
-          suggestion: SuggestionApiModel;
-        }>(`${this.apiUrl}/${id}`)
-      );
+  getSuggestionById(
+    id: number,
+    onSuccess: (suggestion: Suggestion | undefined) => void,
+    onError?: (error: unknown) => void
+  ): void {
+    this.http
+      .get<{
+        success: boolean;
+        suggestion: SuggestionApiModel;
+      }>(`${this.apiUrl}/${id}`)
+      .subscribe({
+        next: (data) => {
+          if (!data?.suggestion) {
+            onSuccess(undefined);
+            return;
+          }
 
-      if (!data?.suggestion) {
-        return undefined;
-      }
+          onSuccess(this.mapFromApi(data.suggestion));
+        },
+        error: (error: HttpErrorResponse) => {
+          if (error.status === 404) {
+            onSuccess(undefined);
+            return;
+          }
 
-      return this.mapFromApi(data.suggestion);
-    } catch (error) {
-      if (error instanceof HttpErrorResponse && error.status === 404) {
-        return undefined;
-      }
-      throw new Error('Impossible de recuperer la suggestion.');
-    }
+          onError?.(new Error('Impossible de recuperer la suggestion.'));
+        }
+      });
   }
 
-  async addSuggestion(payload: CreateSuggestionPayload): Promise<number> {
-    const data = await firstValueFrom(
-      this.http.post<{
+  addSuggestion(
+    payload: CreateSuggestionPayload,
+    onSuccess: (id: number) => void,
+    onError?: (error: unknown) => void
+  ): void {
+    this.http
+      .post<{
         success: boolean;
         id: number;
       }>(this.apiUrl, {
@@ -69,13 +83,21 @@ export class SuggestionsService {
         category: payload.category,
         status: this.normalizeStatusToApi(payload.status)
       })
-    );
-
-    return data.id;
+      .subscribe({
+        next: (data) => onSuccess(data.id),
+        error: (error) => onError?.(error)
+      });
   }
 
-  async likeSuggestion(id: number): Promise<void> {
-    await firstValueFrom(this.http.post(`${this.apiUrl}/${id}/like`, {}));
+  likeSuggestion(
+    id: number,
+    onSuccess?: () => void,
+    onError?: (error: unknown) => void
+  ): void {
+    this.http.post(`${this.apiUrl}/${id}/like`, {}).subscribe({
+      next: () => onSuccess?.(),
+      error: (error) => onError?.(error)
+    });
   }
 
   private mapFromApi(item: SuggestionApiModel): Suggestion {

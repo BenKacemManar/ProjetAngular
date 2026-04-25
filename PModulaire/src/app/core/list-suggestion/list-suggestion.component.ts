@@ -15,13 +15,16 @@ export class ListSuggestionComponent implements OnInit {
 
   constructor(private readonly suggestionsService: SuggestionsService) {}
 
-  async ngOnInit(): Promise<void> {
-    try {
-      this.suggestions = await this.suggestionsService.getSuggestions();
-    } catch (error) {
-      console.error(error);
-      this.suggestions = [];
-    }
+  ngOnInit(): void {
+    this.suggestionsService.getSuggestions(
+      (suggestions) => {
+        this.suggestions = suggestions;
+      },
+      (error) => {
+        console.error(error);
+        this.suggestions = [];
+      }
+    );
   }
 
   get filteredSuggestions(): Suggestion[] {
@@ -37,13 +40,16 @@ export class ListSuggestionComponent implements OnInit {
     );
   }
 
-  async incrementLikes(suggestion: Suggestion): Promise<void> {
-    try {
-      await this.suggestionsService.likeSuggestion(suggestion.id);
-      suggestion.nbLikes++;
-    } catch (error) {
-      console.error(error);
-    }
+  incrementLikes(suggestion: Suggestion): void {
+    this.suggestionsService.likeSuggestion(
+      suggestion.id,
+      () => {
+        suggestion.nbLikes++;
+      },
+      (error) => {
+        console.error(error);
+      }
+    );
   }
 
   addToFavorites(suggestion: Suggestion): void {

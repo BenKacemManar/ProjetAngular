@@ -63,7 +63,7 @@ export class SuggestionFormComponent {
     return this.suggestionForm.get('category');
   }
 
-  async onSubmit(): Promise<void> {
+  onSubmit(): void {
     if (this.suggestionForm.invalid) {
       this.suggestionForm.markAllAsTouched();
       return;
@@ -71,17 +71,19 @@ export class SuggestionFormComponent {
 
     const formValue = this.suggestionForm.getRawValue();
 
-    try {
-      await this.suggestionsService.addSuggestion({
+    this.suggestionsService.addSuggestion(
+      {
         title: formValue.title,
         description: formValue.description,
         category: formValue.category,
         status: 'en_attente'
-      });
-
-      this.router.navigate(['/suggestions']);
-    } catch (error) {
-      console.error(error);
-    }
+      },
+      () => {
+        this.router.navigate(['/suggestions']);
+      },
+      (error) => {
+        console.error(error);
+      }
+    );
   }
 }

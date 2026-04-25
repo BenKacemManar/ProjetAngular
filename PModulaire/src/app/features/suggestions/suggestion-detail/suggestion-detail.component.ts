@@ -17,7 +17,7 @@ export class SuggestionDetailComponent implements OnInit {
     private readonly suggestionsService: SuggestionsService
   ) {}
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
 
     if (Number.isNaN(id)) {
@@ -25,11 +25,15 @@ export class SuggestionDetailComponent implements OnInit {
       return;
     }
 
-    try {
-      this.suggestion = await this.suggestionsService.getSuggestionById(id);
-    } catch (error) {
-      console.error(error);
-      this.suggestion = undefined;
-    }
+    this.suggestionsService.getSuggestionById(
+      id,
+      (suggestion) => {
+        this.suggestion = suggestion;
+      },
+      (error) => {
+        console.error(error);
+        this.suggestion = undefined;
+      }
+    );
   }
 }

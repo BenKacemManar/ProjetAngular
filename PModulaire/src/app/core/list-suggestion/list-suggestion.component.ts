@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 import { Suggestion } from '../../models/suggestion';
 import { SuggestionsService } from '../../features/suggestions/suggestions.service';
@@ -8,13 +8,20 @@ import { SuggestionsService } from '../../features/suggestions/suggestions.servi
   templateUrl: './list-suggestion.component.html',
   styleUrls: ['./list-suggestion.component.css']
 })
-export class ListSuggestionComponent {
+export class ListSuggestionComponent implements OnInit {
   searchText: string = '';
   favorites: Suggestion[] = [];
   suggestions: Suggestion[] = [];
 
-  constructor(private readonly suggestionsService: SuggestionsService) {
-    this.suggestions = this.suggestionsService.getSuggestions();
+  constructor(private readonly suggestionsService: SuggestionsService) {}
+
+  async ngOnInit(): Promise<void> {
+    try {
+      this.suggestions = await this.suggestionsService.getSuggestions();
+    } catch (error) {
+      console.error(error);
+      this.suggestions = [];
+    }
   }
 
   get filteredSuggestions(): Suggestion[] {
@@ -30,8 +37,13 @@ export class ListSuggestionComponent {
     );
   }
 
-  incrementLikes(suggestion: Suggestion): void {
-    suggestion.nbLikes++;
+  async incrementLikes(suggestion: Suggestion): Promise<void> {
+    try {
+      await this.suggestionsService.likeSuggestion(suggestion.id);
+      suggestion.nbLikes++;
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   addToFavorites(suggestion: Suggestion): void {
